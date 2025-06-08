@@ -25,91 +25,71 @@ REST APIs PostgreSQL
 
 ---
 
-## ⚙️ Technologies Used
+---
 
-| Layer      | Stack                                        |
-| ---------- | -------------------------------------------- |
-| Frontend   | React, Zustand, Tailwind, Socket.IO-client   |
-| Backend    | Node.js, Express, Socket.IO, JWT, bcrypt     |
-| Database   | PostgreSQL with Knex.js or Prisma ORM        |
-| Realtime   | WebSocket via Socket.IO                      |
-| Auth       | JWT (stored in HTTP-only secure cookie)      |
-| Deployment | Vercel / Netlify (FE), Render / Railway (BE) |
+## ⚙️ Technologies
+
+| Layer        | Stack                                      |
+| ------------ | ------------------------------------------ |
+| Frontend     | React, Zustand, Tailwind, Socket.IO-client |
+| Backend      | Node.js, Express, Socket.IO, JWT           |
+| Auth         | JWT stored in HTTP-only cookies            |
+| DB (planned) | (Optionally) PostgreSQL or SQLite          |
 
 ---
 
-## 🏗 Application Architecture
+## 🏗 Project Architecture
 
-### 1. **Frontend (React + Zustand)**
+### Backend (`/backend/src`)
 
-- `Zustand Store Slices` for:
-  - `UserSlice`: Tracks logged-in user, active user, and online status
-  - `ChatSlice`: Stores per-user messages, unseen message counts
-- `Socket.IO client` connects on login
-- `REST API calls` for:
-  - `/api/users`: Create & fetch users
-  - `/api/messages`: Optional, for syncing messages
+| Path                 | Responsibility                                                    |
+| -------------------- | ----------------------------------------------------------------- |
+| `routes/users.ts`    | Register and fetch users                                          |
+| `routes/messages.ts` | (Optional) Persist/fetch message history                          |
+| `routes/me.ts`       | Returns logged-in user via JWT                                    |
+| `middleware/auth.ts` | Extract and validate JWT cookie                                   |
+| `lib/jwt.ts`         | Sign/verify JWT                                                   |
+| `socket.ts`          | Handle real-time events (connect, message, typing, user presence) |
+| `types.ts`           | Shared types like `Message`, `User`                               |
+| `index.ts`           | Express app + HTTP + Socket.IO init                               |
 
-### 2. **Backend (Node.js + Socket.IO)**
+### Frontend (expected)
 
-#### Express HTTP Server
-
-- `/api/login`: Creates user + sets signed JWT cookie
-- `/api/me`: Returns logged-in user from JWT
-- `/api/users`: Returns all users
-- Middleware:
-  - `authMiddleware`: Extracts and verifies JWT from cookie
-
-#### Socket.IO Server
-
-- `user:register`: Maps socket ID to user ID
-- `message:send`: Emits message to receiver socket (via in-memory map)
-- `user:joined/left`: Broadcast online status
-- `typing`: Optional typing indicators
-
-### 3. **Database (PostgreSQL)**
-
-| Table      | Fields                                                |
-| ---------- | ----------------------------------------------------- |
-| `users`    | `id`, `name`, `email`, `avatar`, `created_at`         |
-| `messages` | `id`, `sender_id`, `receiver_id`, `text`, `timestamp` |
+- `useChat()` custom hook: manages socket, state, and user
+- Zustand slices: `userSlice.ts`, `chatSlice.ts`
+- UI Components: Header, ChatSection, MessageInput, Sidebar
+- `sendMessage()`, `addMessage()`, `markMessagesSeen()`, etc.
 
 ---
 
-## 🧠 Realtime Strategy
+## 🔐 Authentication Flow
 
-- **Each user has one active socket ID**
-- Maintain a `Map<userId, socketId>` in memory
-- Broadcast `users:online` and `user:joined/left` updates
-- Deliver messages using `io.to(socketId).emit(...)`
-
----
-
-## 🧪 Optimizations
-
-- **Debounced user fetch** on "user:joined"
-- **Unseen message count** tracked client-side
-- Use `Redis` Pub/Sub for cross-instance socket scaling (optional)
+- Login/Register via `/api/users`
+- JWT issued, stored in **secure HTTP-only cookie**
+- On page load, `/api/me` checks user session
+- Socket connects **after auth check**, emits `user:register`
 
 ---
 
-## 🔐 Authentication
+## 🔁 Socket Events
 
-- JWT stored in HTTP-only cookie
-- Auth middleware validates every `/api/*` route
-- Socket auth via emitting `user:register` after page load
-
----
-
-## 🚀 Future Improvements
-
-- ✅ Message history persistence
-- ✅ Message delivery status (sent/read)
-- ⬜ Media support (images, voice)
-- ⬜ Group chats
-- ⬜ Notifications via service workers
-- ⬜ Redis + Socket.IO adapter for horizontal scaling
+| Event             | Direction        | Payload      |
+| ----------------- | ---------------- | ------------ |
+| `user:register`   | client → server  | `{ userId }` |
+| `user:joined`     | server → clients | `{ userId }` |
+| `user:left`       | server → clients | `{ userId }` |
+| `users:online`    | server → clients | `userId[]`   |
+| `message:send`    | client → server  | `Message`    |
+| `message:receive` | server → client  | `Message`    |
 
 ---
 
-## 📂 Folder Structure
+## 💬 Unseen Message Tracking
+
+- Zustand store keeps `unseenCounts: Record<userId, number>`
+- If the chat window is **not open**, unseen count increments
+- When a user is selected (`setActiveUser(userId)`), unseen count resets
+
+---
+
+## 📁 Suggested Folder Structure
