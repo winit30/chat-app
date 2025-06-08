@@ -1,4 +1,4 @@
-# 💬 Chat App – System Design & Architecture
+# 💬 Chat App – Design & Architecture
 
 A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and Node.js**, featuring online presence, unseen message counts, and JWT-based authentication.
 
@@ -40,49 +40,53 @@ A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and 
 
 ## 🏗 Folder Architecture
 
-frontend/
-└── src/
-    ├── assets/                     # Static files (icons, images)
-    ├── components/
-    │   ├── auth-modal/             # Login modal
-    │   └── chat-section/
-    │       ├── ChatWindow/
-    │       │   ├── ChatForm.tsx    # Message input form
-    │       │   ├── ChatHeader.tsx  # Chat title + user info
-    │       │   └── ChatThread.tsx  # Message display
-    │       ├── ChatSidebar.tsx     # User list + status + unseen count
-    │       └── index.tsx           # ChatSection entry point
-    ├── common/
-    │   └── Header.tsx              # App top bar with profile & logout
-    ├── hooks/
-    │   └── useChat.ts              # Socket + Zustand integration
-    ├── lib/
-    │   ├── socket.ts               # Socket.IO client config
-    │   └── utils.ts                # Utility functions
-    ├── store/
-    │   ├── chatSlice.ts            # Messages + unseen count logic
-    │   ├── userSlice.ts            # Online users, active user
-    │   ├── profileSlice.ts         # Authenticated user profile
-    │   └── index.ts                # Zustand store root
-    ├── App.tsx                     # Root layout
-    ├── main.tsx                    # React app entry point
-    └── route.ts                    # Route config (if used)
+### 🖥 Frontend `/frontend/src`
 
+- frontend/
+  - src/
+    - assets/
+    - components/
+      - auth-modal/
+      - chat-section/
+        - ChatWindow/
+          - ChatForm.tsx
+          - ChatHeader.tsx
+          - ChatThread.tsx
+        - ChatSidebar.tsx
+        - index.tsx
+    - common/
+      - Header.tsx
+    - hooks/
+      - useChat.ts
+    - lib/
+      - socket.ts
+      - utils.ts
+    - store/
+      - chatSlice.ts
+      - userSlice.ts
+      - profileSlice.ts
+      - index.ts
+    - App.tsx
+    - main.tsx
+    - route.ts
 
-backend/
-└── src/
-    ├── routes/
-    │   ├── users.ts                # Create & fetch users
-    │   ├── messages.ts             # (Planned) persist messages
-    │   └── me.ts                   # Get logged-in user from JWT
-    ├── middleware/
-    │   └── auth.ts                 # JWT authentication middleware
-    ├── lib/
-    │   └── jwt.ts                  # Sign & verify tokens
-    ├── socket.ts                   # All real-time WebSocket events
-    ├── types.ts                    # Shared types (User, Message)
-    └── index.ts                    # Express app + Socket.IO server
+---
 
+### 🖥 Backend `/backend/src`
+
+- backend/
+  - src/
+    - routes/
+      - users.ts
+      - messages.ts
+      - me.ts
+    - middleware/
+      - auth.ts
+    - lib/
+      - jwt.ts
+    - socket.ts
+    - types.ts
+    - index.ts
 
 ---
 
@@ -116,11 +120,47 @@ backend/
 - `addMessage()` increments count unless chat window is active
 - `markMessagesSeen()` resets count when user is selected
 
+---
+
 ### ✅ Online Presence
 
 - `Map<userId, socketId>` on backend
 - `users:online` event sent to all clients
 - Online dots and counts shown in `ChatSidebar`
+
+---
+
+#### Socket.IO Server
+
+- `user:register`: Maps socket ID to user ID
+- `message:send`: Emits message to receiver socket (via in-memory map)
+- `user:joined/left`: Broadcast online status
+- `typing`: Optional typing indicators
+
+---
+
+## 🧠 Realtime Strategy
+
+- **Each user has one active socket ID**
+- Maintain a `Map<userId, socketId>` in memory
+- Broadcast `users:online` and `user:joined/left` updates
+- Deliver messages using `io.to(socketId).emit(...)`
+
+---
+
+## 🧪 Optimizations
+
+- **Debounced user fetch** on "user:joined"
+- **Unseen message count** tracked client-side
+- Use `Redis` Pub/Sub for cross-instance socket scaling (optional)
+
+---
+
+## 🔐 Authentication
+
+- JWT stored in HTTP-only cookie
+- Auth middleware validates every `/api/*` route
+- Socket auth via emitting `user:register` after page load
 
 ---
 
