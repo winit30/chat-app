@@ -1,4 +1,6 @@
-# React + TypeScript + Vite + Express + socket IO
+# 💬 Chat App – System Design & Architecture
+
+A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and Node.js**, featuring online presence, unseen message counts, and JWT-based authentication.
 
 <!-- Works in GitHub -->
 <p align="center">
@@ -7,89 +9,127 @@
   </a>
 </p>
 
-# 💬 Real-Time Chat App – System Design & Architecture
+---
 
-A scalable real-time chat application built with **React + Zustand + Socket.IO** on the frontend and **Node.js + Express + Socket.IO + JWT + PostgreSQL** on the backend.
+## 🧠 System Design Overview
+
+### 📦 Architecture Diagram
+
+[ React + Zustand + Socket.IO-client ]
+│
+▼
+[ Node.js + Express + Socket.IO ]
+│
+▼
+[ In-memory Map<userId, socketId> ]
 
 ---
 
-## 🧩 System Design Overview
+## ⚙️ Tech Stack
 
-### 🏛 Architecture Diagram
-
-[Client (React)] <---> [Socket.IO (WebSocket)] <---> [Node.js Server]
-↑ ↑
-| |
-REST APIs PostgreSQL
-(Auth, Profile, Users) (Users, Messages)
-
----
-
----
-
-## ⚙️ Technologies
-
-| Layer        | Stack                                      |
-| ------------ | ------------------------------------------ |
-| Frontend     | React, Zustand, Tailwind, Socket.IO-client |
-| Backend      | Node.js, Express, Socket.IO, JWT           |
-| Auth         | JWT stored in HTTP-only cookies            |
-| DB (planned) | (Optionally) PostgreSQL or SQLite          |
+| Layer      | Stack                                        |
+| ---------- | -------------------------------------------- |
+| Frontend   | React, Zustand, Vite, Tailwind, Lucide Icons |
+| Backend    | Node.js, Express, Socket.IO, JWT             |
+| Auth       | JWT (signed, stored in HTTP-only cookies)    |
+| State Mgmt | Zustand with persisted auth & chat slices    |
+| Realtime   | WebSocket via Socket.IO                      |
+| Deployment | Vercel (FE) + Render/Railway (BE)            |
 
 ---
 
-## 🏗 Project Architecture
+## 🏗 Folder Architecture
 
-### Backend (`/backend/src`)
+### 🖥 Frontend `/frontend/src`
 
-| Path                 | Responsibility                                                    |
-| -------------------- | ----------------------------------------------------------------- |
-| `routes/users.ts`    | Register and fetch users                                          |
-| `routes/messages.ts` | (Optional) Persist/fetch message history                          |
-| `routes/me.ts`       | Returns logged-in user via JWT                                    |
-| `middleware/auth.ts` | Extract and validate JWT cookie                                   |
-| `lib/jwt.ts`         | Sign/verify JWT                                                   |
-| `socket.ts`          | Handle real-time events (connect, message, typing, user presence) |
-| `types.ts`           | Shared types like `Message`, `User`                               |
-| `index.ts`           | Express app + HTTP + Socket.IO init                               |
+src/
+├── components/
+│ ├── auth-modal/ → Login modal
+│ └── chat-section/
+│ ├── ChatWindow/ → ChatForm, ChatHeader, ChatThread
+│ ├── ChatSidebar.tsx → User list, presence, unseen count
+├── hooks/
+│ └── useChat.ts → Socket events + state integration
+├── store/
+│ ├── chatSlice.ts → Messages + unseen counts
+│ ├── userSlice.ts → Active user, online users
+│ └── profileSlice.ts → Authenticated user info
+├── lib/
+│ ├── socket.ts → Socket.IO connection logic
+│ └── utils.ts → Utility functions
+├── App.tsx → Root layout
+├── main.tsx → App entry
 
-### Frontend (expected)
+---
 
-- `useChat()` custom hook: manages socket, state, and user
-- Zustand slices: `userSlice.ts`, `chatSlice.ts`
-- UI Components: Header, ChatSection, MessageInput, Sidebar
-- `sendMessage()`, `addMessage()`, `markMessagesSeen()`, etc.
+### 🖥 Backend `/backend/src`
+
+src/
+├── routes/
+│ ├── users.ts → Create & fetch users
+│ ├── messages.ts → (Future) persist message history
+│ └── me.ts → Return logged-in user via JWT
+├── middleware/
+│ └── auth.ts → JWT authentication middleware
+├── lib/
+│ └── jwt.ts → Sign/verify JWT tokens
+├── socket.ts → All real-time WebSocket events
+├── types.ts → Shared interfaces (User, Message)
+└── index.ts → Create HTTP + bind Socket.IO server
 
 ---
 
 ## 🔐 Authentication Flow
 
-- Login/Register via `/api/users`
-- JWT issued, stored in **secure HTTP-only cookie**
-- On page load, `/api/me` checks user session
-- Socket connects **after auth check**, emits `user:register`
+- Login via `/api/users` → sets JWT cookie
+- JWT stored in **HTTP-only secure cookie**
+- On app load → `/api/me` validates session
+- After auth, socket connects and emits `user:register`
 
 ---
 
-## 🔁 Socket Events
+## 🔁 WebSocket Events
 
-| Event             | Direction        | Payload      |
-| ----------------- | ---------------- | ------------ |
-| `user:register`   | client → server  | `{ userId }` |
-| `user:joined`     | server → clients | `{ userId }` |
-| `user:left`       | server → clients | `{ userId }` |
-| `users:online`    | server → clients | `userId[]`   |
-| `message:send`    | client → server  | `Message`    |
-| `message:receive` | server → client  | `Message`    |
-
----
-
-## 💬 Unseen Message Tracking
-
-- Zustand store keeps `unseenCounts: Record<userId, number>`
-- If the chat window is **not open**, unseen count increments
-- When a user is selected (`setActiveUser(userId)`), unseen count resets
+| Event             | Direction       | Description                              |
+| ----------------- | --------------- | ---------------------------------------- |
+| `user:register`   | client → server | Attach socket to user ID                 |
+| `users:online`    | server → client | Sends array of currently online user IDs |
+| `user:joined`     | server → client | Notify other clients of new user         |
+| `user:left`       | server → client | Notify others when a user disconnects    |
+| `message:send`    | client → server | Send message with sender/receiver info   |
+| `message:receive` | server → client | Broadcast received message               |
 
 ---
 
-## 📁 Suggested Folder Structure
+## 💬 Chat Logic Features
+
+### ✅ Unseen Message Count
+
+- `chatSlice` tracks unseen counts by user ID
+- `addMessage()` increments count unless chat window is active
+- `markMessagesSeen()` resets count when user is selected
+
+### ✅ Online Presence
+
+- `Map<userId, socketId>` on backend
+- `users:online` event sent to all clients
+- Online dots and counts shown in `ChatSidebar`
+
+---
+
+## 📚 Future Enhancements
+
+- ✅ Message thread by user
+- ✅ Per-user unseen message tracking
+- ⬜ Message persistence with PostgreSQL
+- ⬜ Media support (images, audio)
+- ⬜ Group chat support
+- ⬜ Typing indicators
+- ⬜ Redis Pub/Sub for horizontal socket scaling
+
+---
+
+## 🧑‍💻 Author
+
+Crafted by [@winit30](https://github.com/winit30)  
+Full-stack scalable chat with clean system design & realtime UX.
