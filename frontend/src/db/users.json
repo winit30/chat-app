@@ -1,0 +1,26 @@
+[
+    {
+      "name": "Lapit",
+      "id": 1,
+      "image": "https://i.pravatar.cc/300?img=",
+      "status": "online"
+    },
+    {
+      "name": "Amit",
+      "id": 2,
+      "image": "https://i.pravatar.cc/300?img=",
+      "status": "online"
+    },
+    {
+      "name": "Rohit",
+      "id": 3,
+      "image": "https://i.pravatar.cc/300?img=",
+      "status": "online"
+    },
+    {
+      "name": "Sumit",
+      "id": 4,
+      "image": "https://i.pravatar.cc/300?img=",
+      "status": "offline"
+    }
+  ]
