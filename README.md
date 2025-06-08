@@ -3,7 +3,7 @@
 A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and Node.js**, featuring online presence, unseen message counts, and JWT-based authentication.
 
 <!-- Works in GitHub -->
-<p align="center">
+<p>
   <a href="https://www.youtube.com/watch?v=EJgRzUraV48" target="_blank">
     <img src="https://raw.githubusercontent.com/winit30/chat-app/refs/heads/main/chat-app-window.png" alt="Watch Demo" width="600" />
   </a>
