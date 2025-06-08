@@ -39,10 +39,7 @@ A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and 
 ---
 
 ## 🏗 Folder Architecture
-<details> <summary><strong>🖥️ Frontend <code>/frontend/src</code></strong></summary>
-txt
-Copy
-Edit
+
 frontend/
 └── src/
     ├── assets/                     # Static files (icons, images)
@@ -51,44 +48,41 @@ frontend/
     │   └── chat-section/
     │       ├── ChatWindow/
     │       │   ├── ChatForm.tsx    # Message input form
-    │       │   ├── ChatHeader.tsx  # Chat title + user
-    │       │   └── ChatThread.tsx  # Message list
-    │       ├── ChatSidebar.tsx     # User list, status, unseen count
-    │       └── index.tsx
+    │       │   ├── ChatHeader.tsx  # Chat title + user info
+    │       │   └── ChatThread.tsx  # Message display
+    │       ├── ChatSidebar.tsx     # User list + status + unseen count
+    │       └── index.tsx           # ChatSection entry point
     ├── common/
-    │   └── Header.tsx              # App top bar
+    │   └── Header.tsx              # App top bar with profile & logout
     ├── hooks/
-    │   └── useChat.ts              # Chat logic: socket + state
+    │   └── useChat.ts              # Socket + Zustand integration
     ├── lib/
-    │   ├── socket.ts               # Socket.IO client connection
+    │   ├── socket.ts               # Socket.IO client config
     │   └── utils.ts                # Utility functions
     ├── store/
-    │   ├── chatSlice.ts            # Messages + unseen count
-    │   ├── profileSlice.ts         # Logged-in user state
-    │   ├── userSlice.ts            # All users + active user
+    │   ├── chatSlice.ts            # Messages + unseen count logic
+    │   ├── userSlice.ts            # Online users, active user
+    │   ├── profileSlice.ts         # Authenticated user profile
     │   └── index.ts                # Zustand store root
-    ├── App.tsx                     # Root component
-    ├── main.tsx                    # React entry point
-    └── route.ts                    # App routing (if applicable)
-</details>
-<details> <summary><strong>🖥️ Backend <code>/backend/src</code></strong></summary>
-txt
-Copy
-Edit
+    ├── App.tsx                     # Root layout
+    ├── main.tsx                    # React app entry point
+    └── route.ts                    # Route config (if used)
+
+
 backend/
 └── src/
     ├── routes/
     │   ├── users.ts                # Create & fetch users
-    │   ├── messages.ts             # (Planned) Message history
-    │   └── me.ts                   # Get current user from JWT
+    │   ├── messages.ts             # (Planned) persist messages
+    │   └── me.ts                   # Get logged-in user from JWT
     ├── middleware/
-    │   └── auth.ts                 # JWT auth middleware
+    │   └── auth.ts                 # JWT authentication middleware
     ├── lib/
-    │   └── jwt.ts                  # Token sign/verify helpers
-    ├── socket.ts                   # WebSocket logic (events)
-    ├── types.ts                    # Shared TS types (User, Message)
-    └── index.ts                    # Express server + Socket.IO setup
-</details>
+    │   └── jwt.ts                  # Sign & verify tokens
+    ├── socket.ts                   # All real-time WebSocket events
+    ├── types.ts                    # Shared types (User, Message)
+    └── index.ts                    # Express app + Socket.IO server
+
 
 ---
 
