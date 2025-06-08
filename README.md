@@ -5,7 +5,7 @@ A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and 
 <!-- Works in GitHub -->
 <p align="center">
   <a href="https://www.youtube.com/watch?v=EJgRzUraV48" target="_blank">
-    <img src="https://img.youtube.com/vi/EJgRzUraV48/0.jpg" alt="Watch Demo" width="600" />
+    <img src="https://raw.githubusercontent.com/winit30/chat-app/refs/heads/main/chat-app-window.png" alt="Watch Demo" width="600" />
   </a>
 </p>
 
