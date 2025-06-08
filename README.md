@@ -42,40 +42,49 @@ A real-time 1-on-1 chat application built with **React, Zustand, Socket.IO, and 
 
 ### 🖥 Frontend `/frontend/src`
 
-src/
-├── components/
-│ ├── auth-modal/ → Login modal
-│ └── chat-section/
-│ ├── ChatWindow/ → ChatForm, ChatHeader, ChatThread
-│ ├── ChatSidebar.tsx → User list, presence, unseen count
-├── hooks/
-│ └── useChat.ts → Socket events + state integration
-├── store/
-│ ├── chatSlice.ts → Messages + unseen counts
-│ ├── userSlice.ts → Active user, online users
-│ └── profileSlice.ts → Authenticated user info
-├── lib/
-│ ├── socket.ts → Socket.IO connection logic
-│ └── utils.ts → Utility functions
-├── App.tsx → Root layout
-├── main.tsx → App entry
+frontend/
+└── src/
+    ├── assets/                  # Static images, icons
+    ├── components/
+    │   ├── auth-modal/          # Login modal
+    │   └── chat-section/
+    │       ├── ChatWindow/      # ChatForm, ChatHeader, ChatThread
+    │       ├── ChatSidebar.tsx  # Sidebar: users, presence, unseen count
+    │       └── index.tsx        # ChatSection entry
+    ├── common/
+    │   └── Header.tsx           # App header (logout, user info)
+    ├── hooks/
+    │   └── useChat.ts           # Socket handlers + state integration
+    ├── lib/
+    │   ├── socket.ts            # Socket.IO client setup
+    │   └── utils.ts             # Utility helpers
+    ├── store/
+    │   ├── chatSlice.ts         # Messages + unseen logic
+    │   ├── userSlice.ts         # Users, active user, online users
+    │   ├── profileSlice.ts      # Authenticated user profile
+    │   └── index.ts             # Zustand store exports
+    ├── App.tsx                  # Root layout
+    ├── main.tsx                 # React app bootstrap
+    └── route.ts                 # Route (if using any)
+
 
 ---
 
 ### 🖥 Backend `/backend/src`
 
-src/
-├── routes/
-│ ├── users.ts → Create & fetch users
-│ ├── messages.ts → (Future) persist message history
-│ └── me.ts → Return logged-in user via JWT
-├── middleware/
-│ └── auth.ts → JWT authentication middleware
-├── lib/
-│ └── jwt.ts → Sign/verify JWT tokens
-├── socket.ts → All real-time WebSocket events
-├── types.ts → Shared interfaces (User, Message)
-└── index.ts → Create HTTP + bind Socket.IO server
+backend/
+└── src/
+    ├── routes/
+    │   ├── users.ts             # Create/fetch users
+    │   ├── messages.ts          # (Future) message persistence
+    │   └── me.ts                # Returns authenticated user
+    ├── middleware/
+    │   └── auth.ts              # JWT authentication middleware
+    ├── lib/
+    │   └── jwt.ts               # Sign/verify JWT tokens
+    ├── socket.ts                # Socket.IO event logic
+    ├── types.ts                 # Shared types (User, Message)
+    └── index.ts                 # Express + HTTP + Socket.IO server
 
 ---
 
