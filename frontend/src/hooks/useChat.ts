@@ -17,6 +17,9 @@ export default function useChat() {
   const setme = useStore((state) => state.setme);
   const setUsers = useStore((state) => state.setUsers);
   const setActiveUser = useStore((state) => state.setActiveUser);
+  const updateDraftForActiveUser = useStore(
+    (state) => state.updateDraftForActiveUser
+  );
   const markUserOnline = useStore((state) => state.markUserOnline);
   const markUserOffline = useStore((state) => state.markUserOffline);
   const setOnlineUserIds = useStore((state) => state.setOnlineUserIds);
@@ -26,16 +29,14 @@ export default function useChat() {
 
   const me = useStore((state) => state.me);
   const users = useStore((state) => state.users);
-  const activeUserId = useStore((state) => state.activeUserId);
+  const activeUser = useStore((state) => state.activeUser);
   const onlineUserIds = useStore((state) => state.onlineUserIds);
   const unseenCounts = useStore((state) => state.unseenCounts);
+  const drafts = useStore((state) => state.drafts);
 
-  const activeUser: User | null =
-    users.find((u: User) => u.id === activeUserId) || null;
-
-  function onUserSelectForChat(userId: number) {
-    setActiveUser(userId);
-    markMessagesSeen(userId);
+  function onUserSelectForChat(user: User) {
+    setActiveUser(user);
+    markMessagesSeen(user.id);
   }
 
   async function fetchMe() {
@@ -105,12 +106,12 @@ export default function useChat() {
   }
 
   function sendMessage(content: string) {
-    if (!me?.id || !activeUserId) return;
+    if (!me?.id || !activeUser || !activeUser.id) return;
 
     const msg = {
       id: crypto.randomUUID(),
       senderId: me.id,
-      receiverId: activeUserId,
+      receiverId: activeUser.id,
       content,
       timestamp: Date.now(),
     };
@@ -184,10 +185,13 @@ export default function useChat() {
     users: filteredUsers,
     activeUser,
     onlineUserIds,
-    activeUserMessages: activeUserId ? getMessagesWithUser(activeUserId) : [],
+    activeUserMessages:
+      activeUser && activeUser.id ? getMessagesWithUser(activeUser.id) : [],
     unseenCounts,
+    drafts,
     onChatLogin,
     onUserSelectForChat,
     sendMessage,
+    updateDraftForActiveUser,
   };
 }

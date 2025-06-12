@@ -22,12 +22,28 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useEffect } from "react";
+import type { Drafts, Draft, User } from "@/store/userSlice";
+
+type CustomFormEvent = {
+  target: {
+    value: string;
+  };
+};
 
 type ChatPropTypes = {
   sendMessage: (content: string) => void;
+  updateDraftForActiveUser: (d: Draft) => void;
+  user: User;
+  drafts: Drafts;
 };
 
-export default function ChatForm({ sendMessage }: ChatPropTypes) {
+export default function ChatForm({
+  sendMessage,
+  updateDraftForActiveUser,
+  user,
+  drafts,
+}: ChatPropTypes) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -35,6 +51,7 @@ export default function ChatForm({ sendMessage }: ChatPropTypes) {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     if (data?.textMessage) {
       sendMessage(data.textMessage);
+      updateDraftForActiveUser({ id: user.id, message: "" });
     }
 
     form.reset({
@@ -48,6 +65,22 @@ export default function ChatForm({ sendMessage }: ChatPropTypes) {
       form.handleSubmit(onSubmit)();
     }
   };
+
+  function handleFormInputChange(e: CustomFormEvent) {
+    updateDraftForActiveUser({ id: user.id, message: e.target.value });
+  }
+
+  useEffect(() => {
+    if (drafts[user?.id]) {
+      form.reset({
+        textMessage: drafts[user?.id],
+      });
+    } else {
+      form.reset({
+        textMessage: "",
+      });
+    }
+  }, [user, drafts, form]);
 
   return (
     <Form {...form}>
@@ -66,6 +99,10 @@ export default function ChatForm({ sendMessage }: ChatPropTypes) {
                   placeholder="Type a message"
                   className="resize-none min-h-1 bg-white border-slate-400"
                   {...field}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleFormInputChange(e);
+                  }}
                   rows={1}
                   onKeyDown={handleKeyDown}
                   required={false}

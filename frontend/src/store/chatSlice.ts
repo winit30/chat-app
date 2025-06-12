@@ -31,7 +31,9 @@ export function createChatSlice(
           msg.senderId === meId ? msg.receiverId : msg.senderId;
         const isFromOther = msg.senderId !== meId;
         const shouldCountAsUnseen =
-          isFromOther && get().activeUserId !== otherUserId;
+          isFromOther &&
+          get().activeUser &&
+          get().activeUser.id !== otherUserId;
 
         const existing = state.messagesByUser[otherUserId] || [];
         return {

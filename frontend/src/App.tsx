@@ -10,12 +10,14 @@ function App() {
     onChatLogin,
     sendMessage,
     onUserSelectForChat,
+    updateDraftForActiveUser,
     me,
     users,
     activeUser,
     onlineUserIds,
     activeUserMessages,
     unseenCounts,
+    drafts,
   } = useChat();
 
   return (
@@ -31,6 +33,8 @@ function App() {
           sendMessage={sendMessage}
           activeUserMessages={activeUserMessages}
           unseenCounts={unseenCounts}
+          updateDraftForActiveUser={updateDraftForActiveUser}
+          drafts={drafts}
         />
       </div>
       <AuthModal onChatLogin={onChatLogin} open={!me?.id} />

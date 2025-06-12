@@ -1,4 +1,4 @@
-import type { User } from "@/store/userSlice";
+import type { Draft, Drafts, User } from "@/store/userSlice";
 import ChatSidebar from "./ChatSidebar";
 import ChatWindow from "./ChatWindow";
 import type { Message } from "@/store/chatSlice";
@@ -6,12 +6,14 @@ import type { Message } from "@/store/chatSlice";
 type ChatSectionProps = {
   users: User[];
   meId: number;
-  onUserSelect: (userId: number) => void;
+  onUserSelect: (user: User) => void;
   activeUser: User | null;
   onlineUserIds: string[];
   sendMessage: (content: string) => void;
   activeUserMessages: Message[];
   unseenCounts: Record<string, number>;
+  updateDraftForActiveUser: (d: Draft) => void;
+  drafts: Drafts;
 };
 
 export default function ChatSection({
@@ -23,6 +25,8 @@ export default function ChatSection({
   sendMessage,
   activeUserMessages,
   unseenCounts,
+  updateDraftForActiveUser,
+  drafts,
 }: ChatSectionProps) {
   return (
     <div className="flex flex-1 flex-row">
@@ -36,6 +40,7 @@ export default function ChatSection({
       <ChatWindow
         meId={meId}
         user={activeUser}
+        updateDraftForActiveUser={updateDraftForActiveUser}
         sendMessage={sendMessage}
         activeUserMessages={activeUserMessages}
         isUserOnline={
@@ -43,6 +48,7 @@ export default function ChatSection({
             ? onlineUserIds.includes(`${activeUser.id}`)
             : false
         }
+        drafts={drafts}
       />
     </div>
   );

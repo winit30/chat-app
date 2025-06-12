@@ -5,7 +5,7 @@ import type { User } from "@/store/userSlice";
 
 type ChatSidebarProps = {
   users: User[];
-  onUserSelect: (userId: number) => void;
+  onUserSelect: (user: User) => void;
   activeUserId: number | null;
   onlineUserIds: string[];
   unseenCounts: Record<string, number>;
@@ -27,8 +27,8 @@ export default function ChatSidebar({
     return onlineUserIds.includes(`${id}`);
   }
 
-  function handleSelectUserForChat(userId: number) {
-    onUserSelect(userId);
+  function handleSelectUserForChat(user: User) {
+    onUserSelect(user);
   }
 
   return (
@@ -42,7 +42,7 @@ export default function ChatSidebar({
                 isActiveUser(user.id) ? "bg-slate-100" : "hover:bg-slate-50"
               )}
               key={user.id}
-              onClick={handleSelectUserForChat.bind(null, user.id)}
+              onClick={handleSelectUserForChat.bind(null, user)}
             >
               <img
                 src={user.image}
