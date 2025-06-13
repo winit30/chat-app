@@ -34,14 +34,13 @@ export const createUserSlice = (
   drafts: {},
   setUsers: (users) => set(() => ({ users })),
   setActiveUser: (user) => set(() => ({ activeUser: user })),
-  updateDraftForActiveUser: (d) => {
+  updateDraftForActiveUser: (d) =>
     set((state) => ({
       drafts: {
         ...state.drafts,
         [d.id]: d.message,
       },
-    }));
-  },
+    })),
   setOnlineUserIds: (ids) => set(() => ({ onlineUserIds: ids })),
   markUserOnline: (id) =>
     set((state) => ({

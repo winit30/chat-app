@@ -25,12 +25,6 @@ import {
 import { useEffect } from "react";
 import type { Drafts, Draft, User } from "@/store/userSlice";
 
-type CustomFormEvent = {
-  target: {
-    value: string;
-  };
-};
-
 type ChatPropTypes = {
   sendMessage: (content: string) => void;
   updateDraftForActiveUser: (d: Draft) => void;
@@ -66,7 +60,7 @@ export default function ChatForm({
     }
   };
 
-  function handleFormInputChange(e: CustomFormEvent) {
+  function handleFormInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     updateDraftForActiveUser({ id: user.id, message: e.target.value });
   }
 
